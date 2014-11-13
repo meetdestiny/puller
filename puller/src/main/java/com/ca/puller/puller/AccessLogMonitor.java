@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +48,9 @@ public class AccessLogMonitor {
 		List<Map> logs = accessLogReader.getLogs(currentFile, lineNumber, lineNumber+ BATCHSIZE);
 		System.out.println("Logs Count:" + logs.size());
 		if( logs.size() == 0) {
-			if(!checkDateChange(fileName)){
-				
+			if(checkDateChange(fileName)){
+				String newFile = getNewFileName(currentFile);
+				updateStatus(0,currentFile);
 			}
 			
 		} else {
@@ -62,10 +65,30 @@ public class AccessLogMonitor {
 		updateStatus(lineNumber,currentFile);
 	}
 
+	private String getNewFileName(File currentFile) {
+		//log/apache-tomcat/access_log2014-11-13.log
+		String fileDate = currentFile.getAbsolutePath().substring(28,38);
+		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
+		Date currentFileDate = new Date();
+		try {
+			currentFileDate = sdf.parse(fileDate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		Calendar c = Calendar.getInstance(); 
+		c.setTime(currentFileDate); 
+		c.add(Calendar.DATE, 1);
+		currentFileDate = c.getTime();
+		
+		String newFileName = "/log/apache-tomcat/access_log" + sdf.format(currentFileDate) + ".log";
+		return newFileName;
+	}
+
+
 	private boolean checkDateChange(String fileName) {
 		String fileDate = extractDate(fileName);
 		String date = new SimpleDateFormat("YYYY-MM-DD").format(new Date());
-		return fileDate.equals(date);
+		return !fileDate.equals(date);
 	}
 
 
