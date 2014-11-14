@@ -54,14 +54,10 @@ public class AccessLogMonitor {
 			}
 			
 		} else {
-			dispatcher.dispatchAll(logs, "INDEXNAME");
+			dispatcher.dispatchAll(logs, getIndexName(currentFile.getAbsolutePath()));
 			lineNumber += logs.size();
 		}
-		
-		
-		
-
-		
+	
 		updateStatus(lineNumber,currentFile);
 	}
 
@@ -123,5 +119,9 @@ public class AccessLogMonitor {
 	
 	private String extractDate(String fileName) {
 		return fileName.substring(11, 20);
+	}
+	
+	private String getIndexName(String filename) {
+		return "logs_" + extractDate(filename);
 	}
 }
