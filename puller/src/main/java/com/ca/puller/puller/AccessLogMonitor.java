@@ -27,7 +27,7 @@ public class AccessLogMonitor {
 			while (true) {
 				processLogs();
 				try {
-					Thread.sleep(1);
+					Thread.sleep(1000);
 				} catch(Exception ex) {
 
 				}
@@ -43,9 +43,10 @@ public class AccessLogMonitor {
 		String status[] = getStatus().split("[,]");
 		int lineNumber = Integer.parseInt(status[0]);
 		String fileName = status[1];
+		//System.out.println("LineNumber : " + lineNumber + " FileName:" + fileName);
 		AccessLogReader accessLogReader = new AccessLogReader();
 		File currentFile = new File(fileName);
-		List<Map> logs = accessLogReader.getLogs(currentFile, lineNumber, lineNumber+ BATCHSIZE);
+		List<Map> logs = accessLogReader.getLogs(currentFile, lineNumber, BATCHSIZE);
 		System.out.println("Logs Count:" + logs.size());
 		if( logs.size() == 0) {
 			if(checkDateChange(fileName)){
@@ -63,8 +64,8 @@ public class AccessLogMonitor {
 
 	private String getNewFileName(File currentFile) {
 		//log/apache-tomcat/access_log2014-11-13.log
-		String fileDate = currentFile.getAbsolutePath().substring(28,38);
-		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
+		String fileDate = currentFile.getAbsolutePath().substring(29,39);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date currentFileDate = new Date();
 		try {
 			currentFileDate = sdf.parse(fileDate);
@@ -83,14 +84,14 @@ public class AccessLogMonitor {
 
 	private boolean checkDateChange(String fileName) {
 		String fileDate = extractDate(fileName);
-		String date = new SimpleDateFormat("YYYY-MM-DD").format(new Date());
+		String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		return !fileDate.equals(date);
 	}
 
 
 	private void updateStatus(int end, File currentFile) {
 		try {
-			RandomAccessFile raf = new RandomAccessFile("/tmp/logstatus","w");
+			RandomAccessFile raf = new RandomAccessFile("/tmp/logstatus","rw");
 			raf.setLength(0);
 			raf.writeBytes(end + "," + currentFile.getAbsolutePath());
 			raf.close();
@@ -101,10 +102,14 @@ public class AccessLogMonitor {
 		}
 	}
 
+	//access_log2014-11-26.log
 	private String getStatus() {
 		try {
-			if(!(new File("/tmp/logstatus").exists())) 
-				return "";
+			if(!(new File("/tmp/logstatus").exists()))  {
+				String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+				//System.out.println("date" + date);
+				return "1,/log/apache-tomcat/access_log" + date+ ".log" ;
+			}
 			RandomAccessFile raf = new RandomAccessFile("/tmp/logstatus","r");
 			String value  = raf.readLine();
 			raf.close();
@@ -118,10 +123,13 @@ public class AccessLogMonitor {
 	}
 	
 	private String extractDate(String fileName) {
-		return fileName.substring(11, 20);
+		return fileName.substring(29,39);
 	}
 	
 	private String getIndexName(String filename) {
-		return "logs_" + extractDate(filename);
+		//logstash-%{+YYYY.MM.dd}
+		String date = extractDate(filename).replace("-", ".");
+		//System.out.println("Creating index with date:" + date);
+		return "logstash-" + date;
 	}
 }

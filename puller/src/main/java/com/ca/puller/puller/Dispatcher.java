@@ -16,8 +16,9 @@ public class Dispatcher {
 	public Dispatcher() {
 		try {
 		JestClientFactory factory = new JestClientFactory();
-		factory.setHttpClientConfig(new HttpClientConfig.Builder("http://10.9.223.12:9200")
-		.multiThreaded(true)
+		factory.setHttpClientConfig(new HttpClientConfig.Builder("http://ca-audit-elasticsearch.ca-stg-analytics.ca-audit.services.prod.walmart.com:9200")
+		//.multiThreaded(true)
+		.connTimeout(15000).readTimeout(30000)
 		.build());
 		client = factory.getObject();
 		}catch(Exception ex) {
@@ -31,6 +32,7 @@ public class Dispatcher {
 		try {
 			client.execute(index);
 		} catch (Exception e) {
+			System.err.println("Could not dispatch ");
 			e.printStackTrace();
 		}
 	}
@@ -41,7 +43,9 @@ public class Dispatcher {
 			Index index = new Index.Builder(map).index(indexName ).type("accesslog").build();
 			try {
 				client.execute(index);
+				
 			} catch (Exception e) {
+				System.out.println("Could not dispatch");
 				e.printStackTrace();
 			}
 		}

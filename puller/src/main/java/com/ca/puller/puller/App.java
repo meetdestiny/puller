@@ -7,7 +7,6 @@ public class App
 
     public static String HOSTNAME = "";
     
-	private static final Integer batchSize = 100; 
 	public static final String LOG_FOLDER = "/log/apache-tomcat/";
 
 	public static void main( String[] args ) throws Exception

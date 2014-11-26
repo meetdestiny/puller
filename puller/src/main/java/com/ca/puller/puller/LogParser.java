@@ -14,9 +14,9 @@ import java.util.Map;
 
 public class LogParser {
 	
-	SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
-	private static final String logDateFormat = "DD/MMM/YYYY:HH:mm:ssZ";
+	private static final String logDateFormat = "dd/MMM/yyyy:HH:mm:ssZ";
 	String host; 
 	public LogParser(String host) {
 		this.host = host;
@@ -24,7 +24,7 @@ public class LogParser {
 
 	public Map<String,Object> parse(String log) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		System.out.println("Parsing Log:" + log);
+		//System.out.println("Parsing Log:" + log);
 		String items[] = log.split("[ ]");
 		if( items.length <14) {
 			return new HashMap();
@@ -34,6 +34,7 @@ public class LogParser {
 		logDate = logDate.substring(1, logDate.length()-1);
 		Date logDateTime;
 		try {
+			//System.out.println("Parsing datetime:" + logDate);
 			logDateTime = new SimpleDateFormat(logDateFormat).parse(logDate);
 		} catch (ParseException e) {
 			e.printStackTrace();
@@ -99,15 +100,4 @@ public class LogParser {
 			System.out.println("Could not set the SetCOunt to :" + count);
 		}
 	}
-	
-	/*				String loadBalancer = items[0];
-	String clientIP = items[1];
-	String userIn = items[2];
-	String authUser = items[3];
-	String method = items[6];
-	String url = items[7];
-	String status = items[9];
-	String bytes = items[10];
-	String ctime = items[11];
-	String ptime = items[12]; */
 }

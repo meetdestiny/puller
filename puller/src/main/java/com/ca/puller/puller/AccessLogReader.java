@@ -23,23 +23,27 @@ public class AccessLogReader {
 	   return getLogs(logFile, start, end);
 	}
 
-	public List<Map> getLogs(File logFile, int start, int end) throws IOException {
+	public List<Map> getLogs(File logFile, int start, int size) throws IOException {
 		FileInputStream inputStream = null;
 		Scanner sc = null;
-		List<Map> logs = new ArrayList(end-start+1);
+		List<Map> logs = new ArrayList(size);
+		System.out.println("Reading from " + start +" for size:" + size);
 		try {
 			inputStream = new FileInputStream(logFile);
 			sc = new Scanner(inputStream, "UTF-8");
-			int i=1;
+			int i=0;
+			int end = start + size ; 
 			while (sc.hasNextLine()) {
-				System.out.println("Reading Line:" + i++) ;
-				
-				if( i >= start && i <= end )  {
-					String line = sc.nextLine();
+				i++;
+				String line = sc.nextLine();
+				if( i >= start && i < end )  {
 					logs.add(logParser.parse(line));
+					System.out.println("Added Line:" + i +" with start :" + start + " and end:" + end) ;
+				}else  {
+					System.out.println("Did not add  Line:" + i +" with start :" + start + " and end:" + end) ;
 				}
 				
-				if ( i > end ) {
+				if ( i >= end ) {
 					break;
 				}
 			}
