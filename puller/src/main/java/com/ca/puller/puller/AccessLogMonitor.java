@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -21,7 +19,7 @@ public class AccessLogMonitor {
 
 
 	public void monitorLogFolder(String logFolder) {
-		Path myDir = Paths.get(logFolder);
+		//Path myDir = Paths.get(logFolder);
 		try {
 
 			while (true) {

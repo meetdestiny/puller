@@ -37,15 +37,19 @@ public class AccessLogReader {
 				i++;
 				String line = sc.nextLine();
 				if( i >= start && i < end )  {
-					logs.add(logParser.parse(line));
-					System.out.println("Added Line:" + i +" with start :" + start + " and end:" + end) ;
+					Map log = logParser.parse(line); 
+					//if( log.size() >0 )
+					logs.add(log);
+					//System.out.println("Added Line:" + i +" with start :" + start + " and end:" + end) ;
 				}else  {
-					System.out.println("Did not add  Line:" + i +" with start :" + start + " and end:" + end) ;
+					//System.out.println("Did not add  Line:" + i +" with start :" + start + " and end:" + end) ;
 				}
 				
 				if ( i >= end ) {
 					break;
 				}
+				if(i%100 ==0 )
+					Thread.sleep(1);
 			}
 			if (sc.ioException() != null) {
 				throw sc.ioException();

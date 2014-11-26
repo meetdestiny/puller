@@ -40,6 +40,9 @@ public class Dispatcher {
 	public void dispatchAll(List<Map> logs,String indexName) {
 		System.out.println("Dispatching " + logs.size() + " Log Records");
 		for( Map map: logs) {
+			if( map.size() ==0) 
+				continue;
+
 			Index index = new Index.Builder(map).index(indexName ).type("accesslog").build();
 			try {
 				client.execute(index);

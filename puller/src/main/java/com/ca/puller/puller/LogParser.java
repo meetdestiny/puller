@@ -13,9 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LogParser {
-	
+
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	
+
 	private static final String logDateFormat = "dd/MMM/yyyy:HH:mm:ssZ";
 	String host; 
 	public LogParser(String host) {
@@ -30,6 +30,11 @@ public class LogParser {
 			return new HashMap();
 		}
 
+		if("/ca-app/node".equals(items[7]))
+			return new HashMap();
+		if("/".equals(items[7]))
+			return new HashMap();
+
 		String logDate = (items[4] + items[5]);
 		logDate = logDate.substring(1, logDate.length()-1);
 		Date logDateTime;
@@ -40,7 +45,7 @@ public class LogParser {
 			e.printStackTrace();
 			logDateTime = new Date();
 		}
-		
+
 		String protocol = items[8].substring(0, items[8].length() -1);
 
 		map.put("lb", items[0] );
@@ -59,23 +64,24 @@ public class LogParser {
 		map.put("corelationId", items[14]);
 		map.put("@timestamp", logDateTime);
 		return map;
-	
+
 	}
-	
+
 	public String getCommand() {
 		String today = sdf.format(new Date());
 		return "tail -f /log/apache-tomcat/access_log"+today+".log  -n "+ getCount(host) + "\n";
 	}
-	
-	
+
+
 	public int getCount(String host)  {
 		final String filename = "/tmp/"+ host; 
 		if(!(new File(filename).exists())){
 			System.out.println("File " + filename +" does not exist:");
 			return Integer.MAX_VALUE;
 		}
-		try (BufferedReader br =
-				new BufferedReader(new FileReader(filename))) {
+		BufferedReader br = null;
+		try {
+			br =new BufferedReader(new FileReader(filename)) ;
 			String count= br.readLine();
 			if(count!= null) {
 				return Integer.parseInt(count);
@@ -87,17 +93,36 @@ public class LogParser {
 			return Integer.MAX_VALUE;
 		} catch (IOException e) {
 			return Integer.MAX_VALUE;
+		}finally {
+			if( br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
-	
-	public void setCount(Integer count)  {
+
+	public void setCount(Integer count)   {
 		System.out.println("Setting count to :" + count);
 		final String filename = "/tmp/"+ host; 
-		try(RandomAccessFile raf = new RandomAccessFile(filename, "rw")) {
+		RandomAccessFile raf = null;
+		try {
+
+			raf = new RandomAccessFile(filename, "rw"); 
 			raf.setLength(0);
 			raf.write(String.valueOf(count).getBytes());
 		}catch( IOException ex) {
 			System.out.println("Could not set the SetCOunt to :" + count);
+		} finally  {
+			try {
+				raf.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }
